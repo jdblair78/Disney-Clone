@@ -31,7 +31,11 @@ const Navbar = () => {
           <img src="/images/series-icon.svg" alt="Home" />
           <span>SERIES</span>
         </a>
+
       </NavMenu>
+      <Login>
+        Login
+      </Login>
     </Nav>
   );
 };
@@ -125,5 +129,21 @@ const NavMenu = styled.div`
     display: none;
   }
 `;
+
+const Login = styled.a`
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 8px 16px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border: 1px solid #f9f9ff;
+    border-radius: 4px;
+    transition: all 200ms ease-in-out;
+
+    &:hover {
+        background-color: #f9f9ff;
+        color: #000;
+        border-color: transparent;
+    }
+`
 
 export default Navbar;
