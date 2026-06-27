@@ -1,16 +1,17 @@
 import styled from "styled-components";
 import { auth, provider } from "../firebase";
+import { signInWithPopup } from "firebase/auth";
 
 const Navbar = () => {
+  const handleAuth = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
 
-  const handleAuth = () => {
-    auth.signInWithPopup(provider).then((result) => {
-      console.log(result)
-    }).catch((error) => {
-      alert(error.message)
-    })
+      console.log(result.user);
+    } catch (error) {
+      alert(error.message);
     }
-  
+  };
 
   return (
     <Nav>
@@ -42,11 +43,8 @@ const Navbar = () => {
           <img src="/images/series-icon.svg" alt="Home" />
           <span>SERIES</span>
         </a>
-
       </NavMenu>
-      <Login onClick={handleAuth}>
-        Login
-      </Login>
+      <Login onClick={handleAuth}>Login</Login>
     </Nav>
   );
 };
@@ -142,19 +140,19 @@ const NavMenu = styled.div`
 `;
 
 const Login = styled.a`
-    background-color: rgba(0, 0, 0, 0.6);
-    padding: 8px 16px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    border: 1px solid #f9f9ff;
-    border-radius: 4px;
-    transition: all 200ms ease-in-out;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 8px 16px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border: 1px solid #f9f9ff;
+  border-radius: 4px;
+  transition: all 200ms ease-in-out;
 
-    &:hover {
-        background-color: #f9f9ff;
-        color: #000;
-        border-color: transparent;
-    }
-`
+  &:hover {
+    background-color: #f9f9ff;
+    color: #000;
+    border-color: transparent;
+  }
+`;
 
 export default Navbar;
