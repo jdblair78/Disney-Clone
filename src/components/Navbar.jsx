@@ -75,10 +75,7 @@ const Navbar = () => {
               <span>SERIES</span>
             </a>
           </NavMenu>
-          <UserImg
-  src="https://lh3.googleusercontent.com/a/ACg8ocJpYxe2OaT_aR4enz-EpBSUHnMxNLnnXnWq7GMEDpssCEEJs44f=s96-c"
-  alt="profile"
-/>
+          <UserImg src={userPhoto} alt={userName} />
         </>
       )}
     </Nav>
