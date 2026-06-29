@@ -6,17 +6,32 @@ import { useNavigate } from "react-router-dom";
 import {
   selectUserName,
   selectUserPhoto,
+  setSignOutState,
   setUserLoginDetails,
 } from "../features/users/userSlice";
+import { useEffect } from "react";
 
 const Navbar = () => {
   const dispatch = useDispatch();
-  const history = useNavigate();
+  const navigate = useNavigate();
   const userName = useSelector(selectUserName);
   const userPhoto = useSelector(selectUserPhoto);
+
   console.log("Redux photo:", userPhoto);
 
+  useEffect(() => {
+    auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        setUser(user);
+        navigate('/home');
+      }
+    })
+  }, [userName]);
+
   const handleAuth = async () => {
+
+    if(!userName) {
+
     try {
       const result = await signInWithPopup(auth, provider);
 
@@ -27,7 +42,13 @@ const Navbar = () => {
     } catch (error) {
       alert(error.message);
     }
+  } else if (userName) {
+      auth.signOut().then(() => {
+        dispatch(setSignOutState())
+        navigate('/')
+      }).catch((err) => alert(err.message))
   };
+}
 
   const setUser = (user) => {
     dispatch(
@@ -75,7 +96,12 @@ const Navbar = () => {
               <span>SERIES</span>
             </a>
           </NavMenu>
+          <SignOut>
           <UserImg src={userPhoto} alt={userName} />
+          <DropDown>
+            <span onClick={handleAuth}>Sign out</span>
+          </DropDown>
+          </SignOut>
         </>
       )}
     </Nav>
@@ -194,5 +220,43 @@ const UserImg = styled.img`
   border-radius: 50%;
   object-fit: cover;
 `;
+
+const DropDown = styled.div`
+  position: absolute;
+  top: 54px;
+  right: 0px;
+  background: rgb(19, 19, 19);
+  border: 1px solid rgba(151, 151, 151, .034);
+  border-radius: 4px;
+  box-shadow: rgb(0 0 0 0 / 50%) 0px 0px 18px 0px;
+  padding: 10px;
+  font-size: 14px;
+  letter-spacing: 3px;
+  width: 100px;
+  opacity: 0;
+
+`
+
+const SignOut = styled.div`
+  position: relative;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+
+  ${UserImg} {
+    border-radius: 50%;
+    width: 100%;
+  }
+
+  &:hover { 
+    ${DropDown} {
+      opacity: 1;
+      transition-duration: 1s;
+    }
+  }
+
+`
+
 
 export default Navbar;
