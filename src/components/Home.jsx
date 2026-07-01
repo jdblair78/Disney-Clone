@@ -15,10 +15,9 @@ import { selectUserName } from "../features/users/userSlice";
 const Home = () => {
   const dispatch = useDispatch();
   const userName = useSelector(selectUserName);
+  const moviesRef = collection(db, "movies");
 
   useEffect(() => {
-    const moviesRef = collection(db, "movies");
-
     const unsubscribe = onSnapshot(moviesRef, (snapshot) => {
       let recommended = [];
       let newDisney = [];
@@ -57,6 +56,8 @@ const Home = () => {
         }),
       );
     });
+
+    return () => unsubscribe();
   }, [userName]);
 
   return (
