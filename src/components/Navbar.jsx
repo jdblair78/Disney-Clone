@@ -2,14 +2,14 @@ import styled from "styled-components";
 import { auth, provider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   selectUserName,
   selectUserPhoto,
   setSignOutState,
   setUserLoginDetails,
 } from "../features/users/userSlice";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -17,16 +17,27 @@ const Navbar = () => {
   const userName = useSelector(selectUserName);
   const userPhoto = useSelector(selectUserPhoto);
 
+  const setUser = useCallback((user) => {
+    dispatch(
+      setUserLoginDetails({
+        name: user.displayName,
+        email: user.email,
+        photo: user.photoURL,
+      }),
+    );
+  }, [dispatch]);
+
   console.log("Redux photo:", userPhoto);
 
   useEffect(() => {
-    auth.onAuthStateChanged(async (user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
-        navigate('/home');
       }
-    })
-  }, [userName]);
+    });
+
+    return unsubscribe;
+  }, [setUser]);
 
   const handleAuth = async () => {
 
@@ -39,6 +50,7 @@ const Navbar = () => {
       console.log(result.user.photoURL);
 
       setUser(result.user);
+      navigate('/home');
     } catch (error) {
       alert(error.message);
     }
@@ -49,16 +61,6 @@ const Navbar = () => {
       }).catch((err) => alert(err.message))
   };
 }
-
-  const setUser = (user) => {
-    dispatch(
-      setUserLoginDetails({
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL,
-      }),
-    );
-  };
 
   return (
     <Nav>
@@ -71,30 +73,30 @@ const Navbar = () => {
       ) : (
         <>
           <NavMenu>
-            <a href="/home">
+            <Link to="/home">
               <img src="/images/home-icon.svg" alt="Home" />
               <span>HOME</span>
-            </a>
-            <a href="/home">
+            </Link>
+            <div>
               <img src="/images/search-icon.svg" alt="Home" />
               <span>SEARCH</span>
-            </a>
-            <a href="/home">
+            </div>
+            <div>
               <img src="/images/watchlist-icon.svg" alt="Home" />
               <span>WATCHLIST</span>
-            </a>
-            <a href="/home">
+            </div>
+            <div>
               <img src="/images/original-icon.svg" alt="Home" />
               <span>ORIGINALS</span>
-            </a>
-            <a href="/home">
+            </div>
+            <div>
               <img src="/images/movie-icon.svg" alt="Home" />
               <span>MOVIES</span>
-            </a>
-            <a href="/home">
+            </div>
+            <div>
               <img src="/images/series-icon.svg" alt="Home" />
               <span>SERIES</span>
-            </a>
+            </div>
           </NavMenu>
           <SignOut>
           <UserImg src={userPhoto} alt={userName} />
@@ -147,7 +149,8 @@ const NavMenu = styled.div`
   margin-right: auto;
   margin-left: 25px;
 
-  a {
+  a,
+  div {
     display: flex;
     align-items: center;
     padding: 0 12px;

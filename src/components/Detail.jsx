@@ -144,7 +144,7 @@ const Player = styled.button`
   padding: 0px 24px;
   height: 56px;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: not-allowed;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -199,7 +199,7 @@ const AddList = styled.div`
   background-color: rgba(0, 0, 0, 0.6);
   border-radius: 50%;
   border: 2px solid white;
-  cursor: pointer;
+  cursor: not-allowed;
 
   span {
     background-color: rgb(249, 249, 249);
@@ -230,7 +230,7 @@ const GroupWatch = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
+  cursor: not-allowed;
 
   div {
     height: 44px;
