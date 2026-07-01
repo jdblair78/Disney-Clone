@@ -17,7 +17,9 @@ const Home = () => {
   const userName = useSelector(selectUserName);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "movies"), (snapshot) => {
+    const moviesRef = collection(db, "movies");
+
+    const unsubscribe = onSnapshot(moviesRef, (snapshot) => {
       let recommended = [];
       let newDisney = [];
       let originals = [];
@@ -55,9 +57,7 @@ const Home = () => {
         }),
       );
     });
-
-    return () => unsubscribe();
-  }, [dispatch, userName]);
+  }, [userName]);
 
   return (
     <Container>
