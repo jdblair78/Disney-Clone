@@ -1,10 +1,72 @@
 import styled from "styled-components";
 import ImgSlider from "./ImgSlider";
+import Viewers from "./Viewers";
+import Recommended from "./Recommended";
+import NewDisney from "./NewDisney";
+import Originals from "./Originals";
+import Trending from "./Trending";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import db from "../firebase";
+import { collection, onSnapshot } from "firebase/firestore";
+import { setMovies } from "../features/movie/movieSlice";
+import { selectUserName } from "../features/users/userSlice";
 
 const Home = () => {
+  const dispatch = useDispatch();
+  const userName = useSelector(selectUserName);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "movies"), (snapshot) => {
+      let recommended = [];
+      let newDisney = [];
+      let originals = [];
+      let trending = [];
+
+      snapshot.docs.forEach((doc) => {
+        switch (doc.data().type) {
+          case "recommend":
+            recommended.push({ id: doc.id, ...doc.data() });
+            break;
+
+          case "new":
+            newDisney.push({ id: doc.id, ...doc.data() });
+            break;
+
+          case "original":
+            originals.push({ id: doc.id, ...doc.data() });
+            break;
+
+          case "trending":
+            trending.push({ id: doc.id, ...doc.data() });
+            break;
+
+          default:
+            break;
+        }
+      });
+
+      dispatch(
+        setMovies({
+          recommended,
+          newDisney,
+          originals,
+          trending,
+        }),
+      );
+    });
+
+    return () => unsubscribe();
+  }, [dispatch, userName]);
+
   return (
     <Container>
       <ImgSlider />
+      <Viewers />
+      <Recommended />
+      <NewDisney />
+      <Originals />
+      <Trending />
     </Container>
   );
 };
@@ -16,7 +78,6 @@ const Container = styled.main`
   display: block;
   top: 72px;
   padding: 0 calc(3.5vw + 5px);
-  
 
   &::after {
     content: "";
