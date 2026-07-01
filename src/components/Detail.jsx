@@ -242,7 +242,12 @@ const GroupWatch = styled.div`
     img {
       width: 100%;
     }
+    
+    &:hover {
+      background-color: rgb(198, 198, 198);
+    }
   }
+
 `;
 
 const Subtitles = styled.div`
