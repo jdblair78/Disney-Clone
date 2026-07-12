@@ -15,6 +15,8 @@ import {
 } from "../features/users/userSlice";
 import { useCallback, useEffect } from "react";
 
+const REDIRECT_ATTEMPT_KEY = "google_auth_redirect_attempt";
+
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -52,14 +54,27 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleRedirectResult = async () => {
+      const hadRedirectAttempt =
+        sessionStorage.getItem(REDIRECT_ATTEMPT_KEY) === "1";
+
       try {
         const result = await getRedirectResult(auth);
         if (result?.user) {
+          sessionStorage.removeItem(REDIRECT_ATTEMPT_KEY);
           setUser(result.user);
           navigate("/home");
+          return;
+        }
+
+        if (hadRedirectAttempt && !auth.currentUser) {
+          sessionStorage.removeItem(REDIRECT_ATTEMPT_KEY);
+          alert(
+            `Google sign-in did not complete on this browser. If you opened this app inside another app, open it in Safari or Chrome and try again. Host: ${window.location.hostname}`,
+          );
         }
       } catch (error) {
-        alert(error.message);
+        sessionStorage.removeItem(REDIRECT_ATTEMPT_KEY);
+        alert(`Google sign-in failed (${error.code || "unknown_error"}).`);
       }
     };
 
@@ -74,6 +89,7 @@ const Navbar = () => {
     if (!userName) {
       try {
         if (isMobileDevice) {
+          sessionStorage.setItem(REDIRECT_ATTEMPT_KEY, "1");
           await signInWithRedirect(auth, provider);
           return;
         }
@@ -90,6 +106,7 @@ const Navbar = () => {
           error.code === "auth/popup-blocked" ||
           error.code === "auth/operation-not-supported-in-this-environment"
         ) {
+          sessionStorage.setItem(REDIRECT_ATTEMPT_KEY, "1");
           await signInWithRedirect(auth, provider);
           return;
         }
