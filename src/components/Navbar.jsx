@@ -81,19 +81,9 @@ const Navbar = () => {
     handleRedirectResult();
   }, [navigate, setUser]);
 
-  const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(
-    navigator.userAgent,
-  );
-
   const handleAuth = async () => {
     if (!userName) {
       try {
-        if (isMobileDevice) {
-          sessionStorage.setItem(REDIRECT_ATTEMPT_KEY, "1");
-          await signInWithRedirect(auth, provider);
-          return;
-        }
-
         const result = await signInWithPopup(auth, provider);
 
         console.log(result.user);
@@ -104,7 +94,8 @@ const Navbar = () => {
       } catch (error) {
         if (
           error.code === "auth/popup-blocked" ||
-          error.code === "auth/operation-not-supported-in-this-environment"
+          error.code === "auth/operation-not-supported-in-this-environment" ||
+          error.code === "auth/popup-closed-by-user"
         ) {
           sessionStorage.setItem(REDIRECT_ATTEMPT_KEY, "1");
           await signInWithRedirect(auth, provider);
