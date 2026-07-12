@@ -16,26 +16,26 @@ const ImgSlider = () => {
 
   return (
     <Carousel {...settings}>
-    <Wrap>
-      <div>
-            <img src="/images/slider-badging.jpg" alt="" />
-      </div>
-    </Wrap>
-    <Wrap>
-      <div>
-            <img src="/images/slider-scale.jpg" alt="" />
-      </div>
-    </Wrap>
-    <Wrap>
-      <div>
-            <img src="/images/slider-badag.jpg" alt="" />
-      </div>
-    </Wrap>
-    <Wrap>
-      <div>
-            <img src="/images/slider-scales.jpg" alt="" />
-      </div>
-    </Wrap>
+      <Wrap>
+        <div>
+          <img src="/images/slider-badging.jpg" alt="" />
+        </div>
+      </Wrap>
+      <Wrap>
+        <div>
+          <img src="/images/slider-scale.jpg" alt="" />
+        </div>
+      </Wrap>
+      <Wrap>
+        <div>
+          <img src="/images/slider-badag.jpg" alt="" />
+        </div>
+      </Wrap>
+      <Wrap>
+        <div>
+          <img src="/images/slider-scales.jpg" alt="" />
+        </div>
+      </Wrap>
     </Carousel>
   );
 };
@@ -80,33 +80,44 @@ const Carousel = styled(Slider)`
 `;
 
 const Wrap = styled.div`
+  border-radius: 4px;
+  position: relative;
+  padding: 0 8px;
+
+  div {
     border-radius: 4px;
+    box-shadow:
+      rgb(0 0 0 /69%) 0px 26px 30px -10px,
+      rgb(0 0 0 / 73%) 0px 16px 10px -10px;
+    cursor: not-allowed;
+    display: block;
     position: relative;
-    padding: 0 8px;
+    border: 4px solid transparent;
+    overflow: hidden;
 
-    div {
-        border-radius: 4px;
-        box-shadow: rgb(0 0 0 /69%) 0px 26px 30px -10px, rgb(0 0 0 / 73%) 0px 16px 10px -10px;
-        cursor: not-allowed;
-        display: block;
-        position: relative;
-        border: 4px solid transparent;
-        overflow: hidden;
-
-        img {
-            width: 100%;
-            height: 100%;
-            display: block;
-            border-radius: 4px;
-        }
-
-        &:hover {
-            padding: 0;
-            border: 4px solid rgba(249, 249, 249, 0.8);
-            transition-duration: 300ms;
-        }
+    img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 4px;
     }
-`;
 
+    &:hover {
+      padding: 0;
+      border: 4px solid rgba(249, 249, 249, 0.8);
+      transition-duration: 300ms;
+    }
+
+    @media (max-width: 768px) {
+      padding-top: 56.25%;
+
+      img {
+        position: absolute;
+        inset: 0;
+        object-fit: cover;
+      }
+    }
+  }
+`;
 
 export default ImgSlider;
