@@ -1,8 +1,12 @@
 import styled from "styled-components";
 import { auth, provider } from "../firebase";
-import { signInWithPopup } from "firebase/auth";
+import {
+  getRedirectResult,
+  signInWithPopup,
+  signInWithRedirect,
+} from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   selectUserName,
   selectUserPhoto,
@@ -14,18 +18,22 @@ import { useCallback, useEffect } from "react";
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const userName = useSelector(selectUserName);
   const userPhoto = useSelector(selectUserPhoto);
 
-  const setUser = useCallback((user) => {
-    dispatch(
-      setUserLoginDetails({
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL,
-      }),
-    );
-  }, [dispatch]);
+  const setUser = useCallback(
+    (user) => {
+      dispatch(
+        setUserLoginDetails({
+          name: user.displayName,
+          email: user.email,
+          photo: user.photoURL,
+        }),
+      );
+    },
+    [dispatch],
+  );
 
   console.log("Redux photo:", userPhoto);
 
@@ -33,34 +41,71 @@ const Navbar = () => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
+        if (location.pathname === "/") {
+          navigate("/home");
+        }
       }
     });
 
     return unsubscribe;
-  }, [setUser]);
+  }, [location.pathname, navigate, setUser]);
+
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          setUser(result.user);
+          navigate("/home");
+        }
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    handleRedirectResult();
+  }, [navigate, setUser]);
+
+  const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(
+    navigator.userAgent,
+  );
 
   const handleAuth = async () => {
+    if (!userName) {
+      try {
+        if (isMobileDevice) {
+          await signInWithRedirect(auth, provider);
+          return;
+        }
 
-    if(!userName) {
+        const result = await signInWithPopup(auth, provider);
 
-    try {
-      const result = await signInWithPopup(auth, provider);
+        console.log(result.user);
+        console.log(result.user.photoURL);
 
-      console.log(result.user);
-      console.log(result.user.photoURL);
+        setUser(result.user);
+        navigate("/home");
+      } catch (error) {
+        if (
+          error.code === "auth/popup-blocked" ||
+          error.code === "auth/operation-not-supported-in-this-environment"
+        ) {
+          await signInWithRedirect(auth, provider);
+          return;
+        }
 
-      setUser(result.user);
-      navigate('/home');
-    } catch (error) {
-      alert(error.message);
+        alert(error.message);
+      }
+    } else if (userName) {
+      auth
+        .signOut()
+        .then(() => {
+          dispatch(setSignOutState());
+          navigate("/");
+        })
+        .catch((err) => alert(err.message));
     }
-  } else if (userName) {
-      auth.signOut().then(() => {
-        dispatch(setSignOutState())
-        navigate('/')
-      }).catch((err) => alert(err.message))
   };
-}
 
   return (
     <Nav>
@@ -99,10 +144,10 @@ const Navbar = () => {
             </div>
           </NavMenu>
           <SignOut>
-          <UserImg src={userPhoto} alt={userName} />
-          <DropDown>
-            <span onClick={handleAuth}>Sign out</span>
-          </DropDown>
+            <UserImg src={userPhoto} alt={userName} />
+            <DropDown>
+              <span onClick={handleAuth}>Sign out</span>
+            </DropDown>
           </SignOut>
         </>
       )}
@@ -229,7 +274,7 @@ const DropDown = styled.div`
   top: 54px;
   right: 0px;
   background: rgb(19, 19, 19);
-  border: 1px solid rgba(151, 151, 151, .034);
+  border: 1px solid rgba(151, 151, 151, 0.034);
   border-radius: 4px;
   box-shadow: rgb(0 0 0 0 / 50%) 0px 0px 18px 0px;
   padding: 10px;
@@ -237,8 +282,7 @@ const DropDown = styled.div`
   letter-spacing: 3px;
   width: 100px;
   opacity: 0;
-
-`
+`;
 
 const SignOut = styled.div`
   position: relative;
@@ -252,14 +296,12 @@ const SignOut = styled.div`
     width: 100%;
   }
 
-  &:hover { 
+  &:hover {
     ${DropDown} {
       opacity: 1;
       transition-duration: 1s;
     }
   }
-
-`
-
+`;
 
 export default Navbar;
